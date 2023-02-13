@@ -5,7 +5,3 @@ app = Flask(__name__)
 @app.route('/')
 def main():
     return "Heelo WOOOR"
-
-
-if __name__ == '__main__':
-    app.run('localhost', 5000)
