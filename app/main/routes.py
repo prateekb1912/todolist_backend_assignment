@@ -64,3 +64,29 @@ def task_by_id(id):
         })
         
     return task.serialize()
+
+
+@bp.route('/tasks/status/<string:status>', methods = ['GET'])
+def get_tasks_by_status(status):
+    if status not in ['complete', 'incomplete']:
+        return jsonify({
+            'error': 'Bad Request',
+            'message': 'Please specify correct status - complete/incomplete'
+        })
+    
+    tasks = Task.query.filter_by(status = status).all()
+
+    return [task.serialize() for task in tasks]
+
+@bp.route('/tasks/update/<int:id>', methods = ['POST'])
+def update_task_status(id):
+    task = Task.query.filter_by(id=id).first_or_404()
+
+    if task.status == 'incomplete':
+        task.status = 'complete'
+    else:
+        task.status = 'incomplete'
+
+    db.session.commit()
+
+    return task.serialize()
