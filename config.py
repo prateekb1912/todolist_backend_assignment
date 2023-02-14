@@ -8,4 +8,4 @@ class Config:
     DEBUG = True
     FLASK_ENV = 'development'
     SECRET_KEY = os.environ.get('SECRET_KEY', 'very-secret-key')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///todo.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', f'sqlite:///{BASE_DIR}/todo.db')
