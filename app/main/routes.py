@@ -5,7 +5,7 @@ from app.main import bp
 from app.models import Task
 
 from logging import Logger
-
+from datetime import datetime
 
 logger = Logger(__name__)
 
@@ -16,17 +16,27 @@ def error_message():
     })
 
 @bp.route('/', methods = ['GET'])
+@bp.route('/tasks', methods = ['GET'])
 def get_all_tasks():
     tasks = Task.query.order_by(Task.created_at.desc()).all()
 
     return [task.serialize() for task in tasks]
 
 @bp.route('/', methods = ['POST'])
+@bp.route('/tasks', methods = ['POST'])
 def create_task():
     data = request.get_json()
 
     if 'title' not in data:
         return error_message()
+
+    existing_task = Task.query.filter_by(title=data['title']).first()
+
+    if existing_task:
+        return jsonify({
+            'error': 'Bad Request',
+            'message': 'Task with same title already exists.'
+        })
 
     new_task = Task(
         title=data['title']
@@ -48,7 +58,16 @@ def task_by_id(id):
         if 'title' not in data:
             return error_message()
 
+        existing_task = Task.query.filter_by(title=data['title']).first()
+
+        if existing_task:
+            return jsonify({
+                'error': 'Bad Request',
+                'message': 'Task with same title already exists.'
+            })
+
         task.title = data['title']
+        task.last_updated = datetime.now()
 
         db.session.commit()
 
@@ -86,6 +105,8 @@ def update_task_status(id):
         task.status = 'complete'
     else:
         task.status = 'incomplete'
+
+    task.last_updated = datetime.now()
 
     db.session.commit()
 
