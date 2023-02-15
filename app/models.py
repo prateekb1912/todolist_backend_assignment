@@ -4,6 +4,9 @@ import enum
 from app import db
 
 class TaskCompletionStatus(str, enum.Enum):
+    """
+        An enum class for handling the predefined completion status of a task 
+    """
     complete = 'complete'
     incomplete = 'incomplete'
 
@@ -22,6 +25,9 @@ class Task(db.Model):
         return f"<Task {self.title} >"
 
     def serialize(self):
+        """
+            Serialize the model object for JSON response
+        """
         return {
             'id': self.id,
             'title': self.title,

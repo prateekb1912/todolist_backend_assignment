@@ -52,41 +52,47 @@ def create_task():
     return new_task.serialize()
 
 
-@bp.route('/tasks/<int:id>', methods = ['GET', 'PUT', 'DELETE'])
-def task_by_id(id):
+@bp.route('/tasks/<int:id>', methods = ['GET'])
+def get_task_by_id(id):
     task = Task.query.filter_by(id=id).first_or_404()
-
-    if request.method == 'PUT':
-        data = request.get_json()
-
-        if 'title' not in data:
-            return error_message()
-
-        existing_task = Task.query.filter_by(title=data['title']).first()
-
-        if existing_task:
-            return jsonify({
-                'error': 'Bad Request',
-                'message': 'Task with same title already exists.'
-            })
-
-        task.title = data['title']
-        task.last_updated = datetime.now()
-
-        db.session.commit()
-
-        return task.serialize()
-    
-    if request.method == 'DELETE':
-        db.session.delete(task)
-        db.session.commit()
-
-        return jsonify({
-            'status': '200 OK',
-            'message': 'Task has been deleted successfully'
-        })
         
     return task.serialize()
+
+@bp.route('/tasks/update/<int:id>', methods=['PUT'])
+def update_task_by_id(id):
+    data = request.get_json()
+
+    if 'title' not in data:
+        return error_message()
+
+    same_title_task = Task.query.filter_by(title=data['title']).first()
+
+    if same_title_task:
+        return jsonify({
+            'error': 'Bad Request',
+            'message': 'Task with same title already exists.'
+        })
+
+    task = Task.query.filter_by(id=id).first_or_404()
+
+    task.title = data['title']
+    task.last_updated = datetime.now()
+
+    db.session.commit()
+
+    return task.serialize()
+
+@bp.route('/tasks/delete/<int:id>', methods=['DELETE'])
+def delete_task_by_id(id):
+    task = Task.query.filter_by(id=id).first_or_404()
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return jsonify({
+        'status': '200 OK',
+        'message': 'Task has been deleted successfully'
+    })
 
 
 @bp.route('/tasks/status/<string:status>', methods = ['GET'])
@@ -101,7 +107,7 @@ def get_tasks_by_status(status):
 
     return [task.serialize() for task in tasks]
 
-@bp.route('/tasks/update/<int:id>', methods = ['POST'])
+@bp.route('/tasks/status/update/<int:id>', methods = ['POST'])
 def update_task_status(id):
     task = Task.query.filter_by(id=id).first_or_404()
 
