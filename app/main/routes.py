@@ -38,8 +38,12 @@ def create_task():
             'message': 'Task with same title already exists.'
         })
 
+    current_time = datetime.now()
+
     new_task = Task(
-        title=data['title']
+        title = data['title'],
+        created_at = current_time,
+        last_updated = current_time
     )
 
     db.session.add(new_task)
